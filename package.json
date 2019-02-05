@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "async-redis": "^1.1.5",
+    "dockerode": "^2.5.8",
+    "redis": "^2.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.9"
+  }
+}

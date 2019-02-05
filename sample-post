@@ -1,0 +1,47 @@
+{
+  "Name": "web",
+  "TaskTemplate": {
+    "ContainerSpec": {
+      "Image": "nginx:alpine",
+      "Mounts": [
+        {
+          "ReadOnly": true,
+          "Source": "web-data",
+          "Target": "/usr/share/nginx/html",
+          "Type": "volume",
+        }
+      ],
+
+    "Placement": {},
+    "Resources": {
+      "Limits": {
+        "MemoryBytes": 504857600
+      },
+      "Reservations": {}
+    },
+    "RestartPolicy": {
+      "Condition": "on-failure",
+      "Delay": 3,
+      "MaxAttempts": 3
+    }
+  },
+  "Mode": {
+    "Replicated": {
+      "Replicas": 1
+    }
+  },
+  "EndpointSpec": {
+    "Ports": [
+      {
+        "Protocol": "tcp",
+        "PublishedPort": 8888,
+        "TargetPort": 8888
+      }
+    ]
+  }
+  "Labels": {
+
+    "foo": "bar"
+
+  }
+}
