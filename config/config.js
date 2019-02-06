@@ -12,7 +12,8 @@ const config = {
 
 	},
 
-	"appId":"APP1234"
+	"appId":"APP1234",
+	"PlatformId" : "100"
 
 };
 

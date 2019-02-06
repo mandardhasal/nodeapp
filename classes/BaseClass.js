@@ -23,6 +23,13 @@ const BaseClass =class BaseClass {
 		return valid;
 
 	}
+
+	// onst sleep = (waitTimeInMs) => new Promise(resolve => setTimeout(resolve, waitTimeInMs));
+
+	async waitFor(waitTime){
+		await new Promise(resolve => setTimeout(resolve, waitTime));
+	}
+	
 }
 
 

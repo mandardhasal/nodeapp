@@ -2,8 +2,6 @@
 
 global.config = require('./config/config');
 
-
-
 class App  {
 	
 

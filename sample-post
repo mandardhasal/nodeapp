@@ -5,23 +5,26 @@
       "Image": "nginx:alpine",
       "Mounts": [
         {
-          "ReadOnly": true,
+          "ReadOnly": false,
           "Source": "web-data",
           "Target": "/usr/share/nginx/html",
           "Type": "volume",
+          "VolumeOptions": {}
         }
-      ],
-
+      ]
+    
+   
+    },
     "Placement": {},
     "Resources": {
       "Limits": {
-        "MemoryBytes": 504857600
+        "MemoryBytes": 104857600
       },
       "Reservations": {}
     },
     "RestartPolicy": {
       "Condition": "on-failure",
-      "Delay": 3,
+      "Delay": "5s",
       "MaxAttempts": 3
     }
   },
@@ -34,14 +37,10 @@
     "Ports": [
       {
         "Protocol": "tcp",
-        "PublishedPort": 8888,
-        "TargetPort": 8888
+        "PublishedPort": 80,
+        "TargetPort": 80
       }
     ]
-  }
-  "Labels": {
-
-    "foo": "bar"
-
-  }
+  },
+  "Labels": {}
 }
