@@ -5,15 +5,19 @@ const config = {
 	"app" : {
 		
 		"port" : 3000,
-		"interface": '127.0.0.1'
+		"interface": '0.0.0.0'
 	},
 
-	"redis" : {
+	"swarmNetwork" : "jupyter-stack_jupyterhub-net",
 
+	"redis" : {
+		//'host' : 'jupyter-stack_redis'
 	},
 
 	"appId":"APP1234",
 	"PlatformId" : "100"
+
+
 
 };
 

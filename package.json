@@ -2,6 +2,8 @@
   "dependencies": {
     "async-redis": "^1.1.5",
     "dockerode": "^2.5.8",
+    "http-proxy": "^1.17.0",
+    "md5": "^2.2.1",
     "redis": "^2.8.0"
   },
   "devDependencies": {

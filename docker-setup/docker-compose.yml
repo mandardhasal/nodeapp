@@ -1,0 +1,50 @@
+version: "3"
+services:
+  
+
+
+  monitor:
+    image: dockersamples/visualizer:latest
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - jupyterhub-net
+    ports:
+      - "4000:8080"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  redis:
+    image: redis:latest
+    networks:
+      - jupyterhub-net
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  nodeapp:
+    image: node:latest
+    networks:
+      - jupyterhub-net
+      - jupyterhub-external
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/home/mandar/Documents/dev_work/nodeapp:/opt/nodeapp"
+    ports:
+      - "3000:3000"
+    entrypoint: /opt/nodeapp/cmd.sh
+    deploy:
+      placement:
+        constraints:
+        - node.role == manager
+
+
+networks:
+  jupyterhub-net:
+    driver: overlay
+    internal: true
+  jupyterhub-external:
+    driver: overlay

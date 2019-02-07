@@ -1,23 +1,16 @@
 'use strict';
 
 const routeMap = [
-
 	{
 		"patrn" : "^/service/notebook/$", 
-
 		"GET" : { "controller":"nbController", "callable":"getService", "paramGrp": {"service_id":1}  },
-
 		"POST" : "",
-
-		"DELETE": ""
-
+		"DELETE": { "controller":"nbController", "callable":"delService" }
 	},
 
 	{
 		"patrn": "^/user/(.+)$",
-
 		"GET" : "",
-
 		"DELETE": ""
 	}
 ];
@@ -29,11 +22,13 @@ const Router = class Router {
 		this.http = require('http');
 		this.url = require('url');
 		this.controllers = require('../controllers');
+		this.httpProxy = require('http-proxy');
 		this.initialize();
 	}
 
 	initialize() {
 		const server = this.http.createServer(this.handleRoutes.bind(this));
+		this.proxy = this.httpProxy.createProxyServer({ws:true, autoRewrite:true});
 		server.listen(config.app.port);
 		console.log("server listening on "+ config.app.port);
 	}
@@ -46,20 +41,19 @@ const Router = class Router {
 		let url = urlObj.pathname;
 		let outData = {};
 
+
+		//match for routes
 		for (let i = 0; i < routeMap.length; i++) {
 
 			let match = routeMap[i];
-		
 			let matchGrp = url.match(match.patrn)
-			//console.log(matchGrp)
 
 			if(  matchGrp && match[req.method]  ){
 				
 				let controller = self.controllers[match[req.method]["controller"]];
-				controller = await new controller({ server :{req:req}, urlObj:urlObj });
+				controller.initialize({ server :{req:req}, urlObj:urlObj });
 				
 				/*let params = {};
-
 				for (let key in match[req.method]["paramGrp"]) {
   					// console.log(key, match[req.method]["paramGrp"][key]);
   					params[key] = matchGrp[match[req.method]["paramGrp"][key]];
@@ -67,23 +61,28 @@ const Router = class Router {
 				//console.log(params)
 
 				outData = await controller[match[req.method]["callable"]]() || outData;
-				//console.log(outData);
-			
-			} else {
 
+				//////////
+				let response = {};
+				response['code'] = outData.code || 404;
+				response['msg'] = outData.msg || "Not Found";
+				response['data'] = outData.data || {};
+				res.setHeader('Content-type', 'application/json');
+				res.write(JSON.stringify(response));
+				res.end();
+				///////////
+				return;
 
 			}	
 
 		}
-		let response = {};
-		response['code'] = outData.code || 404;
-		response['msg'] = outData.msg || "Not Found";
-		response['data'] = outData.data || {};
-		res.setHeader('Content-type', 'application/json');
-		res.write(JSON.stringify(response));
-		res.end();
-	}
 
+		//
+		let controller  = self.controllers['proxyController'];
+		controller.initialize({ server :{req:req, res:res, proxy:self.proxy }, urlObj:urlObj });
+		controller.handleDefaultRoute();
+		//controller.destruct();
+	}
 
 };
 

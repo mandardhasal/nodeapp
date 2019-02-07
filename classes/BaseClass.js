@@ -2,14 +2,10 @@
 
 const BaseClass =class BaseClass {
 
-	constructor(obj) {
-
-		//this.server = obj.server;
-
+	constructor() {
 		this.docker = require('../lib/dockerLib');
-		
 		this.redis = require('../lib/redisLib');
-
+		this.md5 =  require('md5');
 	}
 
 	authenticateApp (appId){
@@ -17,19 +13,19 @@ const BaseClass =class BaseClass {
 	}
 
 	async authenticateToken(key) {
-
 		let valid = await this.redis.checkKeyExist(key);
-
 		return valid;
-
 	}
-
-	// onst sleep = (waitTimeInMs) => new Promise(resolve => setTimeout(resolve, waitTimeInMs));
 
 	async waitFor(waitTime){
 		await new Promise(resolve => setTimeout(resolve, waitTime));
 	}
-	
+
+	now(){
+		let date = new Date();
+		return date.getTime();
+	}
+
 }
 
 

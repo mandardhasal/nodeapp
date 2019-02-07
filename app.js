@@ -4,20 +4,17 @@ global.config = require('./config/config');
 
 class App  {
 	
-
 	constructor() {
 		console.log('app constructor');
-		this.router = require('./routers/router');
-		
+		this.router = require('./routers/router');		
 	}
 
-	initialize() {
+	start() {
 		new this.router();
 	}
-
 
 };
 
 
 const app = new App();
-app.initialize();
+app.start();
