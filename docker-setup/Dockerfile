@@ -1,0 +1,61 @@
+#using ubutnu 18 - bionic
+FROM ubuntu:18.04
+
+#vars
+ARG NB_USER="nb-user"
+ARG NB_USER_DIR="/home/"${NB_USER}
+ARG NB_DIR=${NB_USER_DIR}"/work"
+ARG SUPPORT_PKGS="wget build-essential"
+ENV PYTHONUSERBASE="/opt/python-pkgs/"
+ENV PATH=${PATH}:${PYTHONUSERBASE}/bin
+
+USER root
+
+#add files
+COPY requirements.txt /tmp/
+COPY jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
+COPY install-talib-dependencies.sh /tmp/
+
+
+#install pkgs
+RUN apt update
+#RUN apt install -yq ${SUPPORT_PKGS} python3-pip python3-dev
+RUN apt install -yq python3-pip python3-dev
+
+#add tini
+ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /usr/bin/tini
+RUN chmod +x /usr/bin/tini
+
+
+#install ta-lib deps
+#RUN cd /tmp && /bin/bash install-talib-dependencies.sh > /dev/null
+
+
+#add nb-user
+RUN useradd -m -s /bin/bash ${NB_USER} \
+     && mkdir ${NB_DIR} ${PYTHONUSERBASE} && chown -R root:${NB_USER} ${NB_USER_DIR} ${PYTHONUSERBASE} && chmod -R 1770 ${NB_USER_DIR} ${PYTHONUSERBASE} 
+
+
+USER ${NB_USER}
+
+#install jupyter
+RUN pip3 install jupyter
+
+#install requirements
+#RUN cd /tmp && pip3 install -r requirements.txt
+
+#clean
+USER root
+RUN rm -rf /var/lib/apt/lists/* \
+	#&& apt remove -yq ${SUPPORT_PKGS} --purge \
+    && rm -rf /tmp/ta-lib* /tmp/requirements.txt /tmp/install-talib-dependencies.sh \
+    && apt autoremove -y
+
+
+
+#entrypoint
+ENV BASEURL '/'
+USER ${NB_USER}
+WORKDIR ${NB_DIR}
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["sh" , "-c", "jupyter notebook --config /etc/jupyter/jupyter_notebook_config.py --NotebookApp.base_url=${BASEURL}"]

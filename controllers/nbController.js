@@ -47,6 +47,12 @@ const nbController  = class NbController extends BaseClass {
 
 			let tasks = await this.docker.getTasks({ "filters": "{ \"service\" : [\"" + serviceId + "\"], \"desired-state\" : [\"running\"]}" } );
 			console.log("cheking task..",JSON.stringify(tasks, null, 4));
+			
+			if(!tasks || tasks.length == 0 || tasks[0]["Status"]["State"]!='running'){
+				this.docker.delService(serviceId);
+				return {'code':400, 'data':'', 'msg':'service exist.. but task are not running.. please delete service and try again'};
+			}
+
 
 			let contNode =  await this.docker.listNodes(  { "filters": "{ \"id\" : [\"" +  tasks[0]["NodeID"] + "\"] }" } );
 			console.log('node.......', JSON.stringify(contNode, null, 4))
@@ -90,20 +96,20 @@ const nbController  = class NbController extends BaseClass {
 					 };
 
 			
-
-			//console.log(this.now());
 			return {'code':200, 'data':map, 'msg':'ok'};
 
 		} else { 
 
 			//create service //check running //if not running ? loop //map redis //return data
 			console.log("service not exist");
+			let token = this.md5( serviceId + this.now() );
 
 			let serviceOpts = {
 				"Name": serviceId,
 				"TaskTemplate": {
 					"ContainerSpec": {
-						"Image": "nginx:latest",
+						"Image": "jupyter-notebook:light",
+						"ENV": ["BASEURL=/"+serviceId+'/'+token],
 						"Mounts": [
 						{
 							"ReadOnly": false,
@@ -134,7 +140,7 @@ const nbController  = class NbController extends BaseClass {
 						"Replicas": 1
 					}
 				},
-				//"Networks":  [ {"Target": "jupyter-stack_jupyterhub-net"}  ],
+				"Networks":  [ {"Target": config.swarmNetwork}  ],
 				"EndpointSpec": {
 					// "Ports": [
 					// {
@@ -170,6 +176,8 @@ const nbController  = class NbController extends BaseClass {
 
 
 			if(tasks.length==0){
+				//safe delete incomplete service
+				this.docker.delService(serviceId); 
 				return {'code':500,'data':'', 'msg':'could not create service task afer max attempts'}; 
 			}
 
@@ -177,7 +185,7 @@ const nbController  = class NbController extends BaseClass {
 			console.log('node.......', JSON.stringify(contNode, null, 4));
 
 
-			let token = this.md5( serviceId + this.now() );
+			
 			let url = "/"+serviceId+"/"+token;
 	
 			let map = { 
@@ -230,7 +238,7 @@ const nbController  = class NbController extends BaseClass {
 
 		this.redis.delKey(serviceId);
 
-		this.docker.dekService(serviceId);
+		this.docker.delService(serviceId);
 
 		return { code:200, data:'', msg:'ok'}		
 	}	

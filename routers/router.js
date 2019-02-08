@@ -28,7 +28,8 @@ const Router = class Router {
 
 	initialize() {
 		const server = this.http.createServer(this.handleRoutes.bind(this));
-		this.proxy = this.httpProxy.createProxyServer({ws:true, autoRewrite:true});
+		this.proxy = this.httpProxy.createProxyServer(/*{ws:true}*/);
+		// this.proxy.listen(3001)
 		server.listen(config.app.port);
 		console.log("server listening on "+ config.app.port);
 	}
@@ -77,7 +78,7 @@ const Router = class Router {
 
 		}
 
-		//
+		
 		let controller  = self.controllers['proxyController'];
 		controller.initialize({ server :{req:req, res:res, proxy:self.proxy }, urlObj:urlObj });
 		controller.handleDefaultRoute();

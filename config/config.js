@@ -11,13 +11,11 @@ const config = {
 	"swarmNetwork" : "jupyter-stack_jupyterhub-net",
 
 	"redis" : {
-		//'host' : 'jupyter-stack_redis'
+		'host' : 'jupyter-stack_redis'
 	},
 
 	"appId":"APP1234",
 	"PlatformId" : "100"
-
-
 
 };
 

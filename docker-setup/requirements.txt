@@ -1,0 +1,6 @@
+scipy
+numpy 
+scikit-learn 
+pandas
+nsepy==0.7
+ta-lib
