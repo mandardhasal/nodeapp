@@ -1,18 +1,18 @@
 'use strict';
 
 const routeMap = [
-	{
-		"patrn" : "^/service/notebook/$", 
-		"GET" : { "controller":"nbController", "callable":"getService", "paramGrp": {"service_id":1}  },
-		"POST" : "",
-		"DELETE": { "controller":"nbController", "callable":"delService" }
-	},
+{
+	"patrn" : "^/service/notebook/$", 
+	"GET" : { "controller":"nbController", "callable":"getService", "paramGrp": {"service_id":1}  },
+	"POST" : "",
+	"DELETE": { "controller":"nbController", "callable":"delService" }
+},
 
-	{
-		"patrn": "^/user/(.+)$",
-		"GET" : "",
-		"DELETE": ""
-	}
+{
+	"patrn": "^/user/(.+)$",
+	"GET" : "",
+	"DELETE": ""
+}
 ];
 
 const Router = class Router {
@@ -27,10 +27,21 @@ const Router = class Router {
 	}
 
 	initialize() {
-		const server = this.http.createServer(this.handleRoutes.bind(this));
-		this.proxy = this.httpProxy.createProxyServer(/*{ws:true}*/);
-		// this.proxy.listen(3001)
-		server.listen(config.app.port);
+
+		this.httpServer = this.http.createServer(this.handleRoutes.bind(this));
+		this.httpServer.on('error', function(err) {
+  			console.log('Proxy Server error....', err);
+  		});
+
+		this.proxyServer = this.httpProxy.createProxyServer({ws:true});
+		this.proxyServer.on('error', function(err) {
+  			console.log('Proxy Server error....', err);
+  		});
+
+		//for websockets
+		this.httpServer.on('upgrade',this.handleRoutes.bind(this));
+	
+		this.httpServer.listen(config.app.port,config.app.interface);
 		console.log("server listening on "+ config.app.port);
 	}
 
@@ -58,7 +69,7 @@ const Router = class Router {
 				for (let key in match[req.method]["paramGrp"]) {
   					// console.log(key, match[req.method]["paramGrp"][key]);
   					params[key] = matchGrp[match[req.method]["paramGrp"][key]];
-				}*/
+  				}*/
 				//console.log(params)
 
 				outData = await controller[match[req.method]["callable"]]() || outData;
@@ -78,11 +89,9 @@ const Router = class Router {
 
 		}
 
-		
 		let controller  = self.controllers['proxyController'];
-		controller.initialize({ server :{req:req, res:res, proxy:self.proxy }, urlObj:urlObj });
+		controller.initialize({ server :{httpServer:self.httpServer, req:req, res:res, proxyServer:self.proxyServer }, urlObj:urlObj });
 		controller.handleDefaultRoute();
-		//controller.destruct();
 	}
 
 };

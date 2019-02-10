@@ -24,7 +24,7 @@ const proxyController  = class proxyController extends BaseClass {
 			return;
 		}
 		
-		let val =  await this.redis.getKey(serviceId);
+		/*let val =  await this.redis.getKey(serviceId);
 		if(!val){
 			this.end({'code':404, 'data':'', 'msg':'Not Found'});
 			return;	
@@ -34,46 +34,41 @@ const proxyController  = class proxyController extends BaseClass {
 		if(!val["token"] || val['token']!=token ){
 			this.end({'code':404, 'data':'', 'msg':'Not Found'});
 			return;	
-		}
+		}*/
 
 		try{
+	
+			let headers = this.router.server.req.headers;
 
-			/*let newpath = this.router.urlObj.path;
-			console.log("oldpath,,,", newpath);
+			if(headers['connection'] && headers['connection'].includes('Upgrade') && headers['upgrade'] && headers['upgrade']=='websocket'){
+				this.router.server.proxyServer.ws(this.router.server.req, this.router.server.res, {
+					target:{
+						protocol: 'http:', 
+						host: serviceId, 
+						port: 8888
+					}
+				},function(err){
+					console.log('ws error.... ', err);
+				});
+			}else{
 
-			newpath = newpath.replace('/'+serviceId, "").replace('/'+token, "");
-			console.log("newpath...", newpath);
-			*/
-			/*this.router.server.proxy.on('proxyRes', function(proxyRes, req, res, option){
-				console.log('ressssssssssssssssss',proxyRes.headers);
-				if( proxyRes.headers['location'] ){
-					//return proxyRes.headers['location'] = self.router.urlObj.path + proxyRes.headers['location'];
-				}
-			})*/
+				this.router.server.proxyServer.web(this.router.server.req, this.router.server.res, {
 
-			/*this.router.server.proxy.on('upgrade', function (req, socket, head) {
-  				this.router.server.proxy.ws(req, socket, head);
-			});*/
-
-			this.router.server.proxy.on('error', function(err) {
-    				return console.log(err);
-			});
-		 	let proxy = this.router.server.proxy.web(this.router.server.req, this.router.server.res, {
-
-    			target: 'http://'+serviceId+':8888',
-    			//changeOrigin : true,
-    			ws:true //+ newpath,
-    			 // ignorePath: true,
-    			// followRedirects: true
-    			//prependPath:false
-  			});
-  			//this.router.server.res.end();
+					target:{
+						protocol: 'http:', 
+						host: serviceId, 
+						port: 8888
+					},
+				},function(err){
+					console.log('webbb error.... ', err);
+				});
+			}
 
 		}catch(err){
 			console.log(err)
 			this.end({'code':404, 'data':'', 'msg':'something went wrong'});
 		}
-		
+
 	}
 
 	end(response){
