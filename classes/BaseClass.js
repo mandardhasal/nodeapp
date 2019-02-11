@@ -8,8 +8,9 @@ const BaseClass =class BaseClass {
 		this.md5 =  require('md5');
 	}
 
-	authenticateApp (appId){
-		return  (appId === config.appId);
+	authenticateApp (appKey){
+		console.log(appKey)
+		return  (appKey === config.appKey);
 	}
 
 	async authenticateToken(key) {

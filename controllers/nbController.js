@@ -18,8 +18,8 @@ const nbController  = class NbController extends BaseClass {
 	async getService() {
 
 		//initial checks
-		let appid = this.router.server.req.headers.appid;
-		if( !appid  || !this.authenticateApp(appid) ){
+		let appkey = this.router.server.req.headers.appkey;
+		if( !appkey  || !this.authenticateApp(appkey) ){
 			return  {'code':400,'data':{}, 'msg':'not auntenticated'}
 		}
 
@@ -72,7 +72,7 @@ const nbController  = class NbController extends BaseClass {
 				token = this.md5(token);
 			}
 			
-			let url = "/"+serviceId+"/"+token;
+			let url = "/route/"+serviceId;
 
 			await this.redis.setKey(serviceId, JSON.stringify({"url":url, "token":token}));
 
@@ -108,8 +108,8 @@ const nbController  = class NbController extends BaseClass {
 				"Name": serviceId,
 				"TaskTemplate": {
 					"ContainerSpec": {
-						"Image": "jupyter-notebook:light",
-						"ENV": ["BASEURL=/"+serviceId+'/'+token],
+						"Image": "jupyter-notebook:light-v1",
+						"ENV": ["BASEURL=/route/"+serviceId, "TOKEN="+token],
 						"Mounts": [
 						{
 							"ReadOnly": false,
@@ -186,7 +186,7 @@ const nbController  = class NbController extends BaseClass {
 
 
 			
-			let url = "/"+serviceId+"/"+token;
+			let url = "/route/"+serviceId;
 	
 			let map = { 
 					'userServiceId' :qs.service_id,
@@ -218,8 +218,8 @@ const nbController  = class NbController extends BaseClass {
 
 	//delete service
 	async delService(){
-		let appid = this.router.server.req.headers.appid;
-		if( !appid  || !this.authenticateApp(appid) ){
+		let appkey = this.router.server.req.headers.appkey;
+		if( !appkey  || !this.authenticateApp(appkey) ){
 			return  {'code':400,'data':{}, 'msg':'not auntenticated'}
 		}
 

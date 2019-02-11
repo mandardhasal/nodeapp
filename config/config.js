@@ -4,7 +4,7 @@ const config = {
 
 	"app" : {
 		
-		"port" : 3000,
+		"port" : 8000,
 		"interface": '0.0.0.0'
 	},
 
@@ -14,7 +14,7 @@ const config = {
 		'host' : 'jupyter-stack_redis'
 	},
 
-	"appId":"APP1234",
+	"appKey":"APP1234",
 	"PlatformId" : "100"
 
 };

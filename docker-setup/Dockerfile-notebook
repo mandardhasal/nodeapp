@@ -55,7 +55,8 @@ RUN rm -rf /var/lib/apt/lists/* \
 
 #entrypoint
 ENV BASEURL '/'
+ENV TOKEN ''
 USER ${NB_USER}
 WORKDIR ${NB_DIR}
 ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["sh" , "-c", "jupyter notebook --config /etc/jupyter/jupyter_notebook_config.py --NotebookApp.base_url=${BASEURL}"]
+CMD ["sh" , "-c", "jupyter notebook --config /etc/jupyter/jupyter_notebook_config.py --NotebookApp.base_url=${BASEURL} --NotebookApp.token=${TOKEN}"]

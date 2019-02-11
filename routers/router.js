@@ -13,7 +13,19 @@ const routeMap = [
 	"GET" : "",
 	"DELETE": ""
 }
+
 ];
+
+
+const proxyMap = [
+{
+	"patrn": "^/route/(.+)$",
+	"ALL": {"controller":"proxyController", "callable":"handleDefaultRoute"}
+}
+
+];
+
+
 
 const Router = class Router {
 
@@ -42,7 +54,7 @@ const Router = class Router {
 		this.httpServer.on('upgrade',this.handleRoutes.bind(this));
 	
 		this.httpServer.listen(config.app.port,config.app.interface);
-		console.log("server listening on "+ config.app.port);
+		console.log("server listening on " + config.app.interface + ":"+ config.app.port);
 	}
 
 
@@ -71,27 +83,32 @@ const Router = class Router {
   					params[key] = matchGrp[match[req.method]["paramGrp"][key]];
   				}*/
 				//console.log(params)
-
 				outData = await controller[match[req.method]["callable"]]() || outData;
-
-				//////////
-				let response = {};
-				response['code'] = outData.code || 404;
-				response['msg'] = outData.msg || "Not Found";
-				response['data'] = outData.data || {};
-				res.setHeader('Content-type', 'application/json');
-				res.write(JSON.stringify(response));
-				res.end();
-				///////////
-				return;
-
-			}	
-
+			}
 		}
 
-		let controller  = self.controllers['proxyController'];
-		controller.initialize({ server :{httpServer:self.httpServer, req:req, res:res, proxyServer:self.proxyServer }, urlObj:urlObj });
-		controller.handleDefaultRoute();
+		for (let i = 0; i < proxyMap.length; i++) {
+			let match = proxyMap[i];
+			let matchGrp = url.match(match.patrn);
+			if(  matchGrp   ){
+				let controller = self.controllers[match["ALL"]["controller"]];
+				controller.initialize({ server :{httpServer:self.httpServer, req:req, res:res, proxyServer:self.proxyServer }, urlObj:urlObj });
+				controller.handleDefaultRoute();
+				return;
+			}
+		}
+
+
+		//////////
+		let response = {};
+		response['code'] = outData.code || 404;
+		response['msg'] = outData.msg || "Not Found";
+		response['data'] = outData.data || {};
+		res.setHeader('Content-type', 'application/json');
+		res.write(JSON.stringify(response));
+		res.end();
+		///////////
+		return;
 	}
 
 };
