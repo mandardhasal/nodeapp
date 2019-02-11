@@ -8,6 +8,8 @@ const config = {
 		"interface": '0.0.0.0'
 	},
 
+	"nbProxyPrefix" : "/route/notebook/",
+
 	"swarmNetwork" : "jupyter-stack_jupyterhub-net",
 
 	"redis" : {

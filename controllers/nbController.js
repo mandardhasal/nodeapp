@@ -72,7 +72,7 @@ const nbController  = class NbController extends BaseClass {
 				token = this.md5(token);
 			}
 			
-			let url = "/route/"+serviceId;
+			let url = config.nbProxyPrefix+serviceId;
 
 			await this.redis.setKey(serviceId, JSON.stringify({"url":url, "token":token}));
 
@@ -109,7 +109,7 @@ const nbController  = class NbController extends BaseClass {
 				"TaskTemplate": {
 					"ContainerSpec": {
 						"Image": "jupyter-notebook:light-v1",
-						"ENV": ["BASEURL=/route/"+serviceId, "TOKEN="+token],
+						"ENV": ["BASEURL="+config.nbProxyPrefix+serviceId, "TOKEN="+token],
 						"Mounts": [
 						{
 							"ReadOnly": false,
@@ -186,7 +186,7 @@ const nbController  = class NbController extends BaseClass {
 
 
 			
-			let url = "/route/"+serviceId;
+			let url = config.nbProxyPrefix+serviceId;
 	
 			let map = { 
 					'userServiceId' :qs.service_id,

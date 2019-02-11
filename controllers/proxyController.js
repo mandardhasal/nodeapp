@@ -16,7 +16,7 @@ const proxyController  = class proxyController extends BaseClass {
 	async handleDefaultRoute(){
 		let self = this;
 		let urlParts = this.router.urlObj.pathname.split('/');
-		let serviceId = urlParts[2];
+		let serviceId = urlParts[3];
 		//let token  = urlParts[2];
 		if(!serviceId){
 			this.end({'code':404, 'data':'', 'msg':'Not Found'});

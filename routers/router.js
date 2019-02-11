@@ -19,7 +19,7 @@ const routeMap = [
 
 const proxyMap = [
 {
-	"patrn": "^/route/(.+)$",
+	"patrn": "^"+config.nbProxyPrefix+"(.+)$",
 	"ALL": {"controller":"proxyController", "callable":"handleDefaultRoute"}
 }
 
